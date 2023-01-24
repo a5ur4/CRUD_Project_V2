@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StyleSheet, Pressable, Text, TextInput, TouchableOpacity, View, Keyboard } from 'react-native';
+import { StyleSheet, Pressable, Text, TextInput, TouchableOpacity, View, Keyboard, Vibration } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { child, Database, getDatabase, ref, set, update, onValue, remove } from 'firebase/database';
 import { db } from './src/config';
@@ -10,48 +10,67 @@ export default function App() {
   const [email, setEmail] = useState('')
   const [cpf, setCpf] = useState('')
   const [telefone, setTelefone] = useState('')
+  const [errorMessage, setErrorMessage] = useState('')
+
+  // Verification function
+
+  function verfication() {
+    setErrorMessage("Este campo é obrigatório*")
+    Vibration.vibrate()
+  }
 
   // Create function
 
   //const newKey = push(child(ref(Database), 'users')).key
 
   function create () {
-    set(ref(db, 'users/' + username /*mudar username para cpf pode ser uma melhor opção*/), {
-      Username: username,
-      Email: email,
-      CPF: cpf,
-      Telefone: telefone,
-    }).then(() => {
-      // Data saved sucessfully
-      alert('Usuário cadastrado')
-  })
-      .catch((error) => {
-        // The write failed
-        alert(error)
-      })
-  }
+    if ((username, email, cpf, telefone) == ''){
+      verfication()
+    } else {
+      set(ref(db, 'users/' + username /*mudar username para cpf pode ser uma melhor opção*/), {
+        Username: username,
+        Email: email,
+        CPF: cpf,
+        Telefone: telefone,
+      }).then(() => {
+        // Data saved sucessfully
+        alert(username + ' seu usuário foi cadastrado')
+    })
+    .catch((error) => {
+          // The write failed
+          alert(error)
+        })
+      setErrorMessage('')
+  }}
 
   // Update function
 
   function update_func () {
-    update(ref(db, 'users/' + username), {
-      Username: username,
-      Email: email,
-      CPF: cpf,
-      Telefone: telefone,
-    }).then(() => {
-      // Data saved sucessfully
-      alert('Usuário atualizado')
-  })
-      .catch((error) => {
-        // The write failed
-        alert(error)
-      })
-  }
+    if ((username) == ''){
+      verfication()
+    } else {
+      update(ref(db, 'users/' + username), {
+        Username: username,
+        Email: email,
+        CPF: cpf,
+        Telefone: telefone,
+      }).then(() => {
+        // Data saved sucessfully
+        alert(username + ' seu usuário foi atualizado')
+    })
+        .catch((error) => {
+          // The write failed
+          alert(error)
+        })
+        setErrorMessage('')
+      }}
 
   // Read Data
 
   function readData() {
+    if ((username) == ''){
+      verfication()
+    } else {
     const starCountRef = ref(db, 'users/' + username)
     onValue(starCountRef, (snapshot) => {
       const data = snapshot.val();
@@ -59,14 +78,17 @@ export default function App() {
         setCpf(data.CPF)
         setTelefone(data.Telefone)
     });
-  }
+  }}
 
   // Delete Data
 
   function deleteData() {
+    if ((username) == ''){
+      verfication()
+    } else {
     remove(ref(db, 'users/' + username))
     alert('usuário removido')
-  }
+    }}
 
   return (
     <SafeAreaView style={styles.container}>
@@ -78,6 +100,7 @@ export default function App() {
         </View>
         <View style={styles.InputBox}>
           <Text style={styles.LabelText}>Nome:</Text>
+          <Text style={styles.errorMessage}>{errorMessage}</Text>
           <TextInput
           style={styles.Input}
           value={username}
@@ -89,6 +112,7 @@ export default function App() {
           />
 
           <Text style={styles.LabelText}>Email:</Text>
+          <Text style={styles.errorMessage}>{errorMessage}</Text>
           <TextInput
           style={styles.Input}
           value={email}
@@ -100,6 +124,7 @@ export default function App() {
           />
 
           <Text style={styles.LabelText}>CPF:</Text>
+          <Text style={styles.errorMessage}>{errorMessage}</Text>
           <TextInput
           style={styles.Input}
           value={cpf}
@@ -112,6 +137,7 @@ export default function App() {
           />
 
           <Text style={styles.LabelText}>Telefone:</Text>
+          <Text style={styles.errorMessage}>{errorMessage}</Text>
           <TextInput
           style={styles.Input}
           value={telefone}
@@ -199,6 +225,13 @@ const styles = StyleSheet.create({
     fontSize: 15,
     marginLeft: 10,
     marginTop: 20
+  },
+
+  errorMessage: {
+    color: 'red',
+    fontSize: 12,
+    paddingLeft: 10,
+    marginBottom: -10,
   },
 
   Input: {
