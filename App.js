@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { StyleSheet, Pressable, Text, TextInput, TouchableOpacity, View, Keyboard, Vibration } from 'react-native';
+import { Pressable, Text, TextInput, TouchableOpacity, View, Keyboard, Vibration, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { child, Database, getDatabase, ref, set, update, onValue, remove } from 'firebase/database';
-import { db } from './src/config';
+import { ref, set, update, onValue, remove } from 'firebase/database';
+import { db } from './src/components/config';
+
+import styles from './src/components/style/style';
 
 export default function App() {
 
@@ -11,6 +13,7 @@ export default function App() {
   const [cpf, setCpf] = useState('')
   const [telefone, setTelefone] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
+  const [usernameList, setUsernameList] = useState([])
 
   // Verification function
 
@@ -27,6 +30,7 @@ export default function App() {
     if ((username, email, cpf, telefone) == ''){
       verfication()
     } else {
+      var user = username
       set(ref(db, 'users/' + username /*mudar username para cpf pode ser uma melhor opção*/), {
         Username: username,
         Email: email,
@@ -41,6 +45,7 @@ export default function App() {
           alert(error)
         })
       setErrorMessage('')
+      setUsernameList ((arr) => [...arr, {id:cpf, usuario:user}])
   }}
 
   // Update function
@@ -87,7 +92,7 @@ export default function App() {
       verfication()
     } else {
     remove(ref(db, 'users/' + username))
-    alert('usuário removido')
+    alert(username + ' removido')
     }}
 
   return (
@@ -179,83 +184,20 @@ export default function App() {
           </TouchableOpacity>
         </View>
       </Pressable>
+      <View style={styles.LineHead_2}></View>
+      <View style={styles.LineHead_1}></View>
+      <FlatList
+      style={styles.FlatList}
+      data={usernameList.reverse()}
+      renderItem={({item}) => {
+        return (
+          <Text>
+            <Text style={styles.ListText}>{item.usuario} foi cadastrado</Text>
+          </Text>
+        )
+      }}
+      >
+      </FlatList>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#191A19',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  PressableContainer: {
-    alignItems: 'center'
-  },
-
-  Title: {
-    alignItems: 'center',
-    top: -20 
-  },  
-
-  TextHead: {
-    color: "#4E9F3D",
-    fontSize:20,
-    fontWeight:'bold'
-  },
-
-  LineHead_1: {
-    padding: 5,
-    width: 250,
-    borderBottomColor: '#4E9F3D',
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-
-  LineHead_2: {
-    padding: 5,
-    width: 300,
-    borderBottomColor: '#4E9F3D',
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-
-  LabelText:{
-    color: '#4E9F3D',
-    fontSize: 15,
-    marginLeft: 10,
-    marginTop: 20
-  },
-
-  errorMessage: {
-    color: 'red',
-    fontSize: 12,
-    paddingLeft: 10,
-    marginBottom: -10,
-  },
-
-  Input: {
-    borderColor: '#4E9F3D',
-    borderWidth:1,
-    marginTop: 15,
-    height: 40,
-    width: 350,
-    borderRadius: 30,
-    color: '#4E9F3D',
-    paddingLeft: 20
-  },
-
-  Button: {
-    backgroundColor: '#4E9F3D',
-    borderRadius: 30,
-    height: 40,
-    width: 200,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 20,
-  },
-
-  ButtonText: {
-    fontSize: 15
-  }
-});
