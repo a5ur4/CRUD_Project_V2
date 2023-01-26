@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Pressable, Text, TextInput, TouchableOpacity, View, Keyboard, Vibration, FlatList } from 'react-native';
+import { Pressable, Text, TextInput, TouchableOpacity, View, Keyboard, Vibration, FlatList, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ref, set, update, onValue, remove } from 'firebase/database';
 import { db } from './src/components/config';
@@ -97,6 +97,10 @@ export default function App() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar
+        backgroundColor='#191A19'
+        barStyle='light-content'
+      />
       <Pressable onPress={Keyboard.dismiss} style={styles.PressableContainer}>
         <View style={styles.Title}>
           <Text style={styles.TextHead}>Cadastro Cliente</Text>
